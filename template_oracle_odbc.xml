@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
-    <version>2.0</version>
-    <date>2014-11-24T06:39:53Z</date>
+    <version>3.2</version>
+    <date>2017-06-17T19:48:58Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -23,6 +23,52 @@
                 </application>
             </applications>
             <items>
+                <item>
+                    <name>Active Users</name>
+                    <type>11</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>db.odbc.select[ora_active_users,{$DSN}]</key>
+                    <delay>30</delay>
+                    <history>90</history>
+                    <trends>0</trends>
+                    <status>0</status>
+                    <value_type>4</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params>select NVL(USERNAME,'---') || '@' || MACHINE || ' ( ' || MODULE || ' )  cnt: ('  || count(1) || ')' &#13;
+from v$session &#13;
+group by username, machine, module &#13;
+order by MACHINE, USERNAME, MODULE</params>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username>{$ORA_USER}</username>
+                    <password>{$ORA_PASS}</password>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Oracle</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
                 <item>
                     <name>Archivelog</name>
                     <type>11</type>
@@ -73,9 +119,9 @@
                     <multiplier>0</multiplier>
                     <snmp_oid/>
                     <key>db.odbc.select[ora_audit, {$DSN}]</key>
-                    <delay>300</delay>
+                    <delay>1800</delay>
                     <history>90</history>
-                    <trends>365</trends>
+                    <trends>0</trends>
                     <status>1</status>
                     <value_type>4</value_type>
                     <allowed_hosts/>
@@ -110,6 +156,247 @@
                     <logtimefmt/>
                 </item>
                 <item>
+                    <name>DB DB_FULL Backups Last 2 Week</name>
+                    <type>11</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>db.odbc.select[ora_backups_dbfull_lastweek,{$DSN}]</key>
+                    <delay>3600</delay>
+                    <history>90</history>
+                    <trends>365</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params>select count(1) &#13;
+from v$rman_Status&#13;
+where operation='BACKUP'&#13;
+and status='COMPLETED'&#13;
+and OBJECT_TYPE='DB FULL'&#13;
+and START_TIME &gt; sysdate - 15;</params>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username>{$ORA_USER}</username>
+                    <password>{$ORA_PASS}</password>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description>Количество полных бэкапов за последние 2 недели&#13;
+(раз в 2 недели должна быть создана полная копия.)</description>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Oracle</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
+                    <name>DB Backups Last Week - input size</name>
+                    <type>11</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>db.odbc.select[ora_backups_input,{$DSN}]</key>
+                    <delay>3600</delay>
+                    <history>90</history>
+                    <trends>365</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params>select sum(input_bytes)&#13;
+from v$rman_Status&#13;
+where operation='BACKUP'&#13;
+and status='COMPLETED'&#13;
+and START_TIME &gt; sysdate - 7;</params>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username>{$ORA_USER}</username>
+                    <password>{$ORA_PASS}</password>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description>бэкапы за последнюю неделю - количество байт входных данных</description>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Oracle</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
+                    <name>DB Backups Last Week</name>
+                    <type>11</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>db.odbc.select[ora_backups_lastweek,{$DSN}]</key>
+                    <delay>3600</delay>
+                    <history>90</history>
+                    <trends>365</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params>select count(1) &#13;
+from v$rman_Status&#13;
+where operation='BACKUP'&#13;
+and status='COMPLETED'&#13;
+and START_TIME &gt; sysdate - 7;</params>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username>{$ORA_USER}</username>
+                    <password>{$ORA_PASS}</password>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description>Количество любых бэкапов за последнюю неделю&#13;
+(каждый день должен быть создан хотя бы архивлог)</description>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Oracle</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
+                    <name>DB Backups Last Week - output size</name>
+                    <type>11</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>db.odbc.select[ora_backups_output,{$DSN}]</key>
+                    <delay>3600</delay>
+                    <history>90</history>
+                    <trends>365</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params>select sum(output_bytes)&#13;
+from v$rman_Status&#13;
+where operation='BACKUP'&#13;
+and status='COMPLETED'&#13;
+and START_TIME &gt; sysdate - 7;</params>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username>{$ORA_USER}</username>
+                    <password>{$ORA_PASS}</password>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description>бэкапы за последнюю неделю - количество байт в выходных бэкапсетах</description>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Oracle</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
+                    <name>Blocking Sessions</name>
+                    <type>11</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>db.odbc.select[ora_blocking_sessions,{$DSN}]</key>
+                    <delay>30</delay>
+                    <history>90</history>
+                    <trends>0</trends>
+                    <status>0</status>
+                    <value_type>4</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params>SELECT &#13;
+  s1.username || '@' || s1.machine || ' ( SID=' || s1.sid || ', program=' || s1.PROGRAM || &#13;
+  ' )  is blocking ' || &#13;
+  s2.username || '@' || s2.machine || ' ( SID=' || s2.sid || ', program=' || s2.PROGRAM || &#13;
+  '  ) for '||l2.ctime||' sec' AS blocking_status &#13;
+FROM v$lock l1, v$session s1, v$lock l2, v$session s2 &#13;
+  WHERE s1.sid=l1.sid AND s2.sid=l2.sid AND l1.BLOCK=1 AND l2.request &gt; 0 AND l1.id1 = l2.id1 &#13;
+  AND l2.id2 = l2.id2 and l2.ctime &gt; 1 ;</params>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username>{$ORA_USER}</username>
+                    <password>{$ORA_PASS}</password>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Oracle</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
                     <name>DB Block Gets</name>
                     <type>11</type>
                     <snmp_community/>
@@ -123,7 +410,7 @@
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units/>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -166,7 +453,7 @@
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units/>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -252,7 +539,7 @@
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units/>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -290,7 +577,7 @@
                     <key>db.odbc.select[ora_dbversion, {$DSN}]</key>
                     <delay>300</delay>
                     <history>90</history>
-                    <trends>365</trends>
+                    <trends>0</trends>
                     <status>0</status>
                     <value_type>4</value_type>
                     <allowed_hosts/>
@@ -305,7 +592,7 @@
                     <snmpv3_privpassphrase/>
                     <formula>1</formula>
                     <delay_flex/>
-                    <params>select COMP_ID||' '||COMP_NAME||' '||VERSION||' '||STATUS||' &lt;br /&gt;' from dba_registry union SELECT ' - SERVERNAME = &lt;b&gt;'||UTL_INADDR.get_host_name ||'&lt;/b&gt; - SERVERADDRESS = &lt;b&gt;'||UTL_INADDR.get_host_address||'&lt;/b&gt; &lt;br /&gt;'from dual union SELECT ' - DB_NAME = &lt;b&gt;'||SYS_CONTEXT ('USERENV', 'DB_NAME') ||'&lt;/b&gt; - INSTANCE_NAME = &lt;b&gt;' ||SYS_CONTEXT ('USERENV', 'INSTANCE_NAME')||'&lt;/b&gt; &lt;br /&gt;' FROM dual</params>
+                    <params>select COMP_ID||' '||COMP_NAME||' '||VERSION||' '||STATUS||' &lt;br /&gt;' from dba_registry union SELECT ' - DB_NAME = &lt;b&gt;'||SYS_CONTEXT ('USERENV', 'DB_NAME') ||'&lt;/b&gt; - INSTANCE_NAME = &lt;b&gt;' ||SYS_CONTEXT ('USERENV', 'INSTANCE_NAME')||'&lt;/b&gt; &lt;br /&gt;' FROM dual</params>
                     <ipmi_sensor/>
                     <data_type>0</data_type>
                     <authtype>0</authtype>
@@ -510,7 +797,7 @@
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>Blocks/sec</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -553,7 +840,7 @@
                     <value_type>0</value_type>
                     <allowed_hosts/>
                     <units>Blocks/sec</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -596,7 +883,7 @@
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>Blocks/sec</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -634,8 +921,8 @@
                     <key>db.odbc.select[ora_locks, {$DSN}]</key>
                     <delay>300</delay>
                     <history>90</history>
-                    <trends>365</trends>
-                    <status>1</status>
+                    <trends>0</trends>
+                    <status>0</status>
                     <value_type>4</value_type>
                     <allowed_hosts/>
                     <units/>
@@ -650,6 +937,49 @@
                     <formula>1</formula>
                     <delay_flex/>
                     <params>select  sn.USERNAME ||'@'||sn.machine, '|SID-&gt;' || m.SID, '|Serial-&gt;'|| sn.SERIAL#, '|Lock Type-&gt;'||m.TYPE, decode(LMODE, 1, 'Null', 2, 'Row-S (SS)', 3, 'Row-X (SX)', 4, 'Share', 5, 'S/Row-X (SSX)', 6, 'Exclusive') lock_type, decode(REQUEST, 0, 'None', 1, 'Null', 2, 'Row-S (SS)', 3, 'Row-X (SX)', 4, 'Share', 5, 'S/Row-X (SSX)', 6, 'Exclusive') lock_requested, '|Time (Sec)-&gt;'||m.CTIME &quot;Time(sec)&quot;, '|ID1-&gt;'||m.ID1, '|ID2-&gt;'||m.ID2, '|SQL Text-&gt;'||t.SQL_TEXT from 	v$session sn, v$lock m , v$sqltext t where 	t.ADDRESS =sn.SQL_ADDRESS and 	t.HASH_VALUE =sn.SQL_HASH_VALUE and 	((sn.SID =m.SID and m.REQUEST !=0) or 	(sn.SID =m.SID and m.REQUEST =0 and LMODE !=4 and (ID1, ID2) in (select s.ID1, s.ID2 from v$lock S where 	REQUEST !=0 and  s.ctime &gt; 5 and 	s.ID1 =m.ID1 and 	s.ID2 =m.ID2))) order by sn.USERNAME, sn.SID, t.PIECE</params>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username>{$ORA_USER}</username>
+                    <password>{$ORA_PASS}</password>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Oracle</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
+                    <name>Logons last hour</name>
+                    <type>11</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>db.odbc.select[ora_logons_last_hour,{$DSN}]</key>
+                    <delay>1800</delay>
+                    <history>90</history>
+                    <trends>365</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params>select count(1) from dba_audit_trail where timestamp &gt;  sysdate-(1/24) and action_name = 'LOGON'</params>
                     <ipmi_sensor/>
                     <data_type>0</data_type>
                     <authtype>0</authtype>
@@ -768,7 +1098,7 @@
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units/>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -897,7 +1227,7 @@
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>IO/sec</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -940,7 +1270,7 @@
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>IO/sec</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -983,7 +1313,7 @@
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>IO/sec</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1080,49 +1410,6 @@
                     <formula>1</formula>
                     <delay_flex/>
                     <params>select pins/(pins+reloads)*100 &quot;pin_hit ratio&quot; FROM v$librarycache where namespace ='SQL AREA'</params>
-                    <ipmi_sensor/>
-                    <data_type>0</data_type>
-                    <authtype>0</authtype>
-                    <username>{$ORA_USER}</username>
-                    <password>{$ORA_PASS}</password>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>Oracle</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                </item>
-                <item>
-                    <name>Pin hit ratio - TABLE-PROCEDURE</name>
-                    <type>11</type>
-                    <snmp_community/>
-                    <multiplier>0</multiplier>
-                    <snmp_oid/>
-                    <key>db.odbc.select[ora_pinhitratio_table-proc, {$DSN}]</key>
-                    <delay>300</delay>
-                    <history>90</history>
-                    <trends>365</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units>%</units>
-                    <delta>0</delta>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <formula>1</formula>
-                    <delay_flex/>
-                    <params>select to_char((sysdate-startup_time)*86400, 'FM99999999999999990') retvalue from v$instance</params>
                     <ipmi_sensor/>
                     <data_type>0</data_type>
                     <authtype>0</authtype>
@@ -1443,6 +1730,49 @@
                     <logtimefmt/>
                 </item>
                 <item>
+                    <name>Sessions</name>
+                    <type>11</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>db.odbc.select[ora_session, {$DSN}]</key>
+                    <delay>300</delay>
+                    <history>90</history>
+                    <trends>365</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params>select count(*) from v$session</params>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username>{$ORA_USER}</username>
+                    <password>{$ORA_PASS}</password>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Oracle</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
                     <name>Session Active</name>
                     <type>11</type>
                     <snmp_community/>
@@ -1510,49 +1840,6 @@
                     <formula>1</formula>
                     <delay_flex/>
                     <params>select SUM(Decode(Type, 'BACKGROUND', 0, Decode(Status, 'ACTIVE', 0, 1))) FROM V$SESSION</params>
-                    <ipmi_sensor/>
-                    <data_type>0</data_type>
-                    <authtype>0</authtype>
-                    <username>{$ORA_USER}</username>
-                    <password>{$ORA_PASS}</password>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>Oracle</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                </item>
-                <item>
-                    <name>Sessions</name>
-                    <type>11</type>
-                    <snmp_community/>
-                    <multiplier>0</multiplier>
-                    <snmp_oid/>
-                    <key>db.odbc.select[ora_session, {$DSN}]</key>
-                    <delay>300</delay>
-                    <history>90</history>
-                    <trends>365</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <delta>0</delta>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <formula>1</formula>
-                    <delay_flex/>
-                    <params>select count(*) from v$session</params>
                     <ipmi_sensor/>
                     <data_type>0</data_type>
                     <authtype>0</authtype>
@@ -1924,7 +2211,7 @@
                     <key>db.odbc.select[ora_tbl_space, {$DSN}]</key>
                     <delay>300</delay>
                     <history>90</history>
-                    <trends>365</trends>
+                    <trends>0</trends>
                     <status>1</status>
                     <value_type>4</value_type>
                     <allowed_hosts/>
@@ -2053,8 +2340,8 @@
                     <key>db.odbc.select[ora_users_locked, {$DSN}]</key>
                     <delay>300</delay>
                     <history>90</history>
-                    <trends>365</trends>
-                    <status>0</status>
+                    <trends>0</trends>
+                    <status>1</status>
                     <value_type>4</value_type>
                     <allowed_hosts/>
                     <units/>
@@ -2106,14 +2393,14 @@ SELECT username&#13;
                     <multiplier>0</multiplier>
                     <snmp_oid/>
                     <key>db.odbc.select[ora_waits_controfileio, {$DSN}]</key>
-                    <delay>300</delay>
+                    <delay>30</delay>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>ms waits/s</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -2149,14 +2436,14 @@ SELECT username&#13;
                     <multiplier>0</multiplier>
                     <snmp_oid/>
                     <key>db.odbc.select[ora_waits_directpath_read, {$DSN}]</key>
-                    <delay>300</delay>
+                    <delay>30</delay>
                     <history>90</history>
                     <trends>365</trends>
                     <status>0</status>
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>ms waits/s</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -2199,7 +2486,7 @@ SELECT username&#13;
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>ms waits/s</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -2242,7 +2529,7 @@ SELECT username&#13;
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>ms waits/s</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -2285,7 +2572,7 @@ SELECT username&#13;
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>ms waits/s</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -2328,7 +2615,7 @@ SELECT username&#13;
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>ms waits/s</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -2371,7 +2658,7 @@ SELECT username&#13;
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>ms waits/s</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -2414,7 +2701,7 @@ SELECT username&#13;
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>ms waits/s</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -2457,7 +2744,7 @@ SELECT username&#13;
                     <value_type>3</value_type>
                     <allowed_hosts/>
                     <units>ms waits/s</units>
-                    <delta>0</delta>
+                    <delta>1</delta>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -2487,162 +2774,809 @@ SELECT username&#13;
                     <logtimefmt/>
                 </item>
             </items>
-            <discovery_rules/>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>Tablespaces</name>
+                    <type>11</type>
+                    <snmp_community/>
+                    <snmp_oid/>
+                    <key>db.odbc.discovery[select_tablespaces,{$DSN}]</key>
+                    <delay>30</delay>
+                    <status>0</status>
+                    <allowed_hosts/>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <delay_flex/>
+                    <params>select tablespace_name as TBS from dba_tablespaces;</params>
+                    <ipmi_sensor/>
+                    <authtype>0</authtype>
+                    <username>{$ORA_USER}</username>
+                    <password>{$ORA_PASS}</password>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <filter>
+                        <evaltype>0</evaltype>
+                        <formula/>
+                        <conditions/>
+                    </filter>
+                    <lifetime>30</lifetime>
+                    <description/>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Tablespace_{#TBS}_MaxSize</name>
+                            <type>11</type>
+                            <snmp_community/>
+                            <multiplier>0</multiplier>
+                            <snmp_oid/>
+                            <key>db.odbc.select[tbs_{#TBS}_maxsize,{$DSN}]</key>
+                            <delay>3600</delay>
+                            <history>90</history>
+                            <trends>365</trends>
+                            <status>0</status>
+                            <value_type>3</value_type>
+                            <allowed_hosts/>
+                            <units/>
+                            <delta>0</delta>
+                            <snmpv3_contextname/>
+                            <snmpv3_securityname/>
+                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                            <snmpv3_authpassphrase/>
+                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                            <snmpv3_privpassphrase/>
+                            <formula>1</formula>
+                            <delay_flex/>
+                            <params>select MAX_SIZE from dba_tablespaces where TABLESPACE_NAME='{#TBS}'</params>
+                            <ipmi_sensor/>
+                            <data_type>0</data_type>
+                            <authtype>0</authtype>
+                            <username>{$ORA_USER}</username>
+                            <password>{$ORA_PASS}</password>
+                            <publickey/>
+                            <privatekey/>
+                            <port/>
+                            <description/>
+                            <inventory_link>0</inventory_link>
+                            <applications>
+                                <application>
+                                    <name>Oracle</name>
+                                </application>
+                            </applications>
+                            <valuemap/>
+                            <logtimefmt/>
+                            <application_prototypes/>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Tablespace_{#TBS}_FreeSize</name>
+                            <type>11</type>
+                            <snmp_community/>
+                            <multiplier>0</multiplier>
+                            <snmp_oid/>
+                            <key>db.odbc.select[tbs_{#TBS}_size_free,{$DSN}]</key>
+                            <delay>3600</delay>
+                            <history>90</history>
+                            <trends>365</trends>
+                            <status>0</status>
+                            <value_type>3</value_type>
+                            <allowed_hosts/>
+                            <units/>
+                            <delta>0</delta>
+                            <snmpv3_contextname/>
+                            <snmpv3_securityname/>
+                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                            <snmpv3_authpassphrase/>
+                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                            <snmpv3_privpassphrase/>
+                            <formula>1</formula>
+                            <delay_flex/>
+                            <params>SELECT &#13;
+        SUM (B.MAXBYTES - B.BYTES) AS FREEBYTES&#13;
+    FROM DBA_DATA_FILES B,&#13;
+         (  SELECT TABLESPACE_NAME,&#13;
+                   ROUND (SUM (BYTES) / 1024 / 1024 / 1024, 2) FREE_SPACE_GB&#13;
+              FROM DBA_FREE_SPACE&#13;
+             WHERE TABLESPACE_NAME IN ('{#TBS}')&#13;
+          GROUP BY TABLESPACE_NAME) A&#13;
+   WHERE     1=1&#13;
+         AND B.TABLESPACE_NAME IN ('{#TBS}')&#13;
+         AND B.TABLESPACE_NAME = A.TABLESPACE_NAME&#13;
+         AND B.MAXBYTES != 0&#13;
+GROUP BY B.TABLESPACE_NAME, A.FREE_SPACE_GB</params>
+                            <ipmi_sensor/>
+                            <data_type>0</data_type>
+                            <authtype>0</authtype>
+                            <username>{$ORA_USER}</username>
+                            <password>{$ORA_PASS}</password>
+                            <publickey/>
+                            <privatekey/>
+                            <port/>
+                            <description/>
+                            <inventory_link>0</inventory_link>
+                            <applications>
+                                <application>
+                                    <name>Oracle</name>
+                                </application>
+                            </applications>
+                            <valuemap/>
+                            <logtimefmt/>
+                            <application_prototypes/>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Tablespace_{#TBS}_UsedSize</name>
+                            <type>11</type>
+                            <snmp_community/>
+                            <multiplier>0</multiplier>
+                            <snmp_oid/>
+                            <key>db.odbc.select[tbs_{#TBS}_size_used,{$DSN}]</key>
+                            <delay>3600</delay>
+                            <history>90</history>
+                            <trends>365</trends>
+                            <status>0</status>
+                            <value_type>3</value_type>
+                            <allowed_hosts/>
+                            <units/>
+                            <delta>0</delta>
+                            <snmpv3_contextname/>
+                            <snmpv3_securityname/>
+                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                            <snmpv3_authpassphrase/>
+                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                            <snmpv3_privpassphrase/>
+                            <formula>1</formula>
+                            <delay_flex/>
+                            <params>SELECT &#13;
+       SUM (B.BYTES) AS USEDBYTES&#13;
+    FROM DBA_DATA_FILES B,&#13;
+         (  SELECT TABLESPACE_NAME,&#13;
+                   ROUND (SUM (BYTES) / 1024 / 1024 / 1024, 2) FREE_SPACE_GB&#13;
+              FROM DBA_FREE_SPACE&#13;
+             WHERE TABLESPACE_NAME IN ('{#TBS}')&#13;
+          GROUP BY TABLESPACE_NAME) A&#13;
+   WHERE     1=1&#13;
+         AND B.TABLESPACE_NAME IN ('{#TBS}')&#13;
+         AND B.TABLESPACE_NAME = A.TABLESPACE_NAME&#13;
+         AND B.MAXBYTES != 0&#13;
+GROUP BY B.TABLESPACE_NAME, A.FREE_SPACE_GB</params>
+                            <ipmi_sensor/>
+                            <data_type>0</data_type>
+                            <authtype>0</authtype>
+                            <username>{$ORA_USER}</username>
+                            <password>{$ORA_PASS}</password>
+                            <publickey/>
+                            <privatekey/>
+                            <port/>
+                            <description/>
+                            <inventory_link>0</inventory_link>
+                            <applications>
+                                <application>
+                                    <name>Oracle</name>
+                                </application>
+                            </applications>
+                            <valuemap/>
+                            <logtimefmt/>
+                            <application_prototypes/>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Tablespace_{#TBS}_Status</name>
+                            <type>11</type>
+                            <snmp_community/>
+                            <multiplier>0</multiplier>
+                            <snmp_oid/>
+                            <key>db.odbc.select[tbs_{#TBS}_status,{$DSN}]</key>
+                            <delay>600</delay>
+                            <history>90</history>
+                            <trends>0</trends>
+                            <status>0</status>
+                            <value_type>4</value_type>
+                            <allowed_hosts/>
+                            <units/>
+                            <delta>0</delta>
+                            <snmpv3_contextname/>
+                            <snmpv3_securityname/>
+                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                            <snmpv3_authpassphrase/>
+                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                            <snmpv3_privpassphrase/>
+                            <formula>1</formula>
+                            <delay_flex/>
+                            <params>select STATUS from dba_tablespaces where TABLESPACE_NAME='{#TBS}'</params>
+                            <ipmi_sensor/>
+                            <data_type>0</data_type>
+                            <authtype>0</authtype>
+                            <username>{$ORA_USER}</username>
+                            <password>{$ORA_PASS}</password>
+                            <publickey/>
+                            <privatekey/>
+                            <port/>
+                            <description/>
+                            <inventory_link>0</inventory_link>
+                            <applications>
+                                <application>
+                                    <name>Oracle</name>
+                                </application>
+                            </applications>
+                            <valuemap/>
+                            <logtimefmt/>
+                            <application_prototypes/>
+                        </item_prototype>
+                    </item_prototypes>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>{template_oracle_odbc:db.odbc.select[tbs_{#TBS}_status,{$DSN}].str(ONLINE,60)}=0</expression>
+                            <recovery_mode>0</recovery_mode>
+                            <recovery_expression/>
+                            <name>Tablespace_status-{#TBS}</name>
+                            <correlation_mode>0</correlation_mode>
+                            <correlation_tag/>
+                            <url/>
+                            <status>0</status>
+                            <priority>0</priority>
+                            <description/>
+                            <type>0</type>
+                            <manual_close>1</manual_close>
+                            <dependencies/>
+                            <tags>
+                                <tag>
+                                    <tag>database</tag>
+                                    <value/>
+                                </tag>
+                            </tags>
+                        </trigger_prototype>
+                    </trigger_prototypes>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <name>Tablespace_{#TBS}_Size</name>
+                            <width>500</width>
+                            <height>200</height>
+                            <yaxismin>0.0000</yaxismin>
+                            <yaxismax>100.0000</yaxismax>
+                            <show_work_period>1</show_work_period>
+                            <show_triggers>1</show_triggers>
+                            <type>1</type>
+                            <show_legend>1</show_legend>
+                            <show_3d>0</show_3d>
+                            <percent_left>0.0000</percent_left>
+                            <percent_right>0.0000</percent_right>
+                            <ymin_type_1>0</ymin_type_1>
+                            <ymax_type_1>0</ymax_type_1>
+                            <ymin_item_1>0</ymin_item_1>
+                            <ymax_item_1>0</ymax_item_1>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>0</sortorder>
+                                    <drawtype>0</drawtype>
+                                    <color>1A7C11</color>
+                                    <yaxisside>0</yaxisside>
+                                    <calc_fnc>2</calc_fnc>
+                                    <type>0</type>
+                                    <item>
+                                        <host>template_oracle_odbc</host>
+                                        <key>db.odbc.select[tbs_{#TBS}_size_free,{$DSN}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <drawtype>0</drawtype>
+                                    <color>F63100</color>
+                                    <yaxisside>0</yaxisside>
+                                    <calc_fnc>2</calc_fnc>
+                                    <type>0</type>
+                                    <item>
+                                        <host>template_oracle_odbc</host>
+                                        <key>db.odbc.select[tbs_{#TBS}_size_used,{$DSN}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
+                    <host_prototypes/>
+                </discovery_rule>
+            </discovery_rules>
+            <httptests/>
             <macros/>
             <templates/>
-            <screens/>
+            <screens>
+                <screen>
+                    <name>Oracle Database</name>
+                    <hsize>2</hsize>
+                    <vsize>6</vsize>
+                    <screen_items>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>0</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>Archivelog</name>
+                                <host>template_oracle_odbc</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>1</x>
+                            <y>0</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>Events Waits</name>
+                                <host>template_oracle_odbc</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>1</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>Hit Ratio</name>
+                                <host>template_oracle_odbc</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>1</x>
+                            <y>1</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>Pin Hit Ratio</name>
+                                <host>template_oracle_odbc</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>2</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>Logical I/O</name>
+                                <host>template_oracle_odbc</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>1</x>
+                            <y>2</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>Physical I/O</name>
+                                <host>template_oracle_odbc</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>3</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>Sessions</name>
+                                <host>template_oracle_odbc</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>1</x>
+                            <y>3</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>Session/Process</name>
+                                <host>template_oracle_odbc</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>1</x>
+                            <y>4</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>PGA</name>
+                                <host>template_oracle_odbc</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>5</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>SGA Memory Usage</name>
+                                <host>template_oracle_odbc</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>1</x>
+                            <y>5</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>Shared Pool</name>
+                                <host>template_oracle_odbc</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                    </screen_items>
+                </screen>
+            </screens>
         </template>
     </templates>
     <triggers>
         <trigger>
-            <expression>{template_oracle_odbc:db.odbc.select[ora_session_active, {$DSN}].last()}&gt;20</expression>
+            <expression>{template_oracle_odbc:db.odbc.select[ora_session_active, {$DSN}].last()}&gt;10</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Active Session {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description>DANGER</description>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
-            <expression>{template_oracle_odbc:db.odbc.select[ora_session_active, {$DSN}].last()}&gt;10</expression>
+            <expression>{template_oracle_odbc:db.odbc.select[ora_session_active, {$DSN}].last()}&gt;20</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Active Session {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description>DANGER</description>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>{template_oracle_odbc:db.odbc.select[ora_session_active, {$DSN}].last()}&gt;120</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Active Session {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description>DANGER</description>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>{template_oracle_odbc:db.odbc.select[ora_session_active, {$DSN}].last()}&gt;200</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Active Session {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description>DANGER</description>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>{template_oracle_odbc:db.odbc.select[ora_archive, {$DSN}].last()}&gt;100</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Archivelog {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>2</priority>
             <description>HIGH Archivelog generation</description>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>{template_oracle_odbc:db.odbc.select[ora_audit, {$DSN}].str(none)}=0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Audit on {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
-            <status>0</status>
+            <status>1</status>
             <priority>4</priority>
             <description/>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>{template_oracle_odbc:db.odbc.select[ora_hitratio_table_proc, {$DSN}].avg(60)}&lt;50 or {template_oracle_odbc:db.odbc.select[ora_hitratio_trigger, {$DSN}].avg(60)}&lt;50 or {template_oracle_odbc:db.odbc.select[ora_hitratio_sqlarea, {$DSN}].avg(60)}&lt;50 or {template_oracle_odbc:db.odbc.select[ora_hitratio_body, {$DSN}].avg(60)}&lt;50</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Hit Ratio on {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
-            <priority>4</priority>
+            <priority>3</priority>
             <description/>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>{template_oracle_odbc:db.odbc.select[ora_locks, {$DSN}].str(none)}=0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Locks on {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description/>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>({template_oracle_odbc:db.odbc.select[ora_pga, {$DSN}].last()}*100/{template_oracle_odbc:db.odbc.select[ora_pga_aggregate_target, {$DSN}].last()})&gt;90</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>PGA Alarm on {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description/>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>({template_oracle_odbc:db.odbc.select[ora_procnum, {$DSN}].last()}*100/{template_oracle_odbc:db.odbc.select[ora_maxprocs, {$DSN}].last()})&gt;80</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Process Alarm on {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description/>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>({template_oracle_odbc:db.odbc.select[ora_session, {$DSN}].last()}*100/{template_oracle_odbc:db.odbc.select[ora_maxsession, {$DSN}].last()})&gt;80</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Session Alarm on {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description/>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>({template_oracle_odbc:db.odbc.select[ora_session, {$DSN}].last()}*100/{template_oracle_odbc:db.odbc.select[ora_maxsession, {$DSN}].last()})&gt;100</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Session Alarm on {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description/>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>{template_oracle_odbc:db.odbc.select[ora_tbl_space, {$DSN}].str(none)}=0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Tablespaces on {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description/>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>{template_oracle_odbc:db.odbc.select[ora_uptime, {$DSN}].last()}&lt;1</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>Uptime on {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
             <status>0</status>
             <priority>4</priority>
             <description/>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
         <trigger>
             <expression>{template_oracle_odbc:db.odbc.select[ora_users_locked, {$DSN}].str(none)}=0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
             <name>User Locked on {HOST.HOST}</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
             <url/>
-            <status>0</status>
+            <status>1</status>
             <priority>4</priority>
             <description/>
             <type>0</type>
+            <manual_close>0</manual_close>
             <dependencies/>
+            <tags/>
         </trigger>
     </triggers>
     <graphs>
@@ -2684,7 +3618,7 @@ SELECT username&#13;
             <height>200</height>
             <yaxismin>0.0000</yaxismin>
             <yaxismax>100.0000</yaxismax>
-            <show_work_period>0</show_work_period>
+            <show_work_period>1</show_work_period>
             <show_triggers>0</show_triggers>
             <type>1</type>
             <show_legend>1</show_legend>
@@ -2795,7 +3729,135 @@ SELECT username&#13;
                 <graph_item>
                     <sortorder>8</sortorder>
                     <drawtype>0</drawtype>
-                    <color>FFCCCC</color>
+                    <color>000099</color>
+                    <yaxisside>0</yaxisside>
+                    <calc_fnc>2</calc_fnc>
+                    <type>0</type>
+                    <item>
+                        <host>template_oracle_odbc</host>
+                        <key>db.odbc.select[ora_waits_logwrite, {$DSN}]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Events Waits - pie</name>
+            <width>900</width>
+            <height>500</height>
+            <yaxismin>0.0000</yaxismin>
+            <yaxismax>0.0000</yaxismax>
+            <show_work_period>0</show_work_period>
+            <show_triggers>0</show_triggers>
+            <type>2</type>
+            <show_legend>1</show_legend>
+            <show_3d>0</show_3d>
+            <percent_left>0.0000</percent_left>
+            <percent_right>0.0000</percent_right>
+            <ymin_type_1>0</ymin_type_1>
+            <ymax_type_1>0</ymax_type_1>
+            <ymin_item_1>0</ymin_item_1>
+            <ymax_item_1>0</ymax_item_1>
+            <graph_items>
+                <graph_item>
+                    <sortorder>0</sortorder>
+                    <drawtype>0</drawtype>
+                    <color>CCFFCC</color>
+                    <yaxisside>0</yaxisside>
+                    <calc_fnc>2</calc_fnc>
+                    <type>0</type>
+                    <item>
+                        <host>template_oracle_odbc</host>
+                        <key>db.odbc.select[ora_waits_latch, {$DSN}]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <drawtype>0</drawtype>
+                    <color>CCCCFF</color>
+                    <yaxisside>0</yaxisside>
+                    <calc_fnc>2</calc_fnc>
+                    <type>0</type>
+                    <item>
+                        <host>template_oracle_odbc</host>
+                        <key>db.odbc.select[ora_waits_file_io, {$DSN}]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <drawtype>0</drawtype>
+                    <color>FF3333</color>
+                    <yaxisside>0</yaxisside>
+                    <calc_fnc>2</calc_fnc>
+                    <type>0</type>
+                    <item>
+                        <host>template_oracle_odbc</host>
+                        <key>db.odbc.select[ora_waits_other, {$DSN}]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>3</sortorder>
+                    <drawtype>0</drawtype>
+                    <color>FF33FF</color>
+                    <yaxisside>0</yaxisside>
+                    <calc_fnc>2</calc_fnc>
+                    <type>0</type>
+                    <item>
+                        <host>template_oracle_odbc</host>
+                        <key>db.odbc.select[ora_waits_singleblock_read, {$DSN}]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>4</sortorder>
+                    <drawtype>0</drawtype>
+                    <color>FFFF33</color>
+                    <yaxisside>0</yaxisside>
+                    <calc_fnc>2</calc_fnc>
+                    <type>0</type>
+                    <item>
+                        <host>template_oracle_odbc</host>
+                        <key>db.odbc.select[ora_waits_multiblock_read, {$DSN}]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>5</sortorder>
+                    <drawtype>0</drawtype>
+                    <color>009900</color>
+                    <yaxisside>0</yaxisside>
+                    <calc_fnc>2</calc_fnc>
+                    <type>0</type>
+                    <item>
+                        <host>template_oracle_odbc</host>
+                        <key>db.odbc.select[ora_waits_directpath_read, {$DSN}]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>6</sortorder>
+                    <drawtype>0</drawtype>
+                    <color>888888</color>
+                    <yaxisside>0</yaxisside>
+                    <calc_fnc>2</calc_fnc>
+                    <type>0</type>
+                    <item>
+                        <host>template_oracle_odbc</host>
+                        <key>db.odbc.select[ora_waits_sqlnet, {$DSN}]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>7</sortorder>
+                    <drawtype>0</drawtype>
+                    <color>00BBBB</color>
+                    <yaxisside>0</yaxisside>
+                    <calc_fnc>2</calc_fnc>
+                    <type>0</type>
+                    <item>
+                        <host>template_oracle_odbc</host>
+                        <key>db.odbc.select[ora_waits_controfileio, {$DSN}]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>8</sortorder>
+                    <drawtype>0</drawtype>
+                    <color>000099</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
                     <type>0</type>
@@ -3037,18 +4099,6 @@ SELECT username&#13;
             <ymax_item_1>0</ymax_item_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
-                    <color>0000CC</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
-                    <item>
-                        <host>template_oracle_odbc</host>
-                        <key>db.odbc.select[ora_pinhitratio_table-proc, {$DSN}]</key>
-                    </item>
-                </graph_item>
-                <graph_item>
                     <sortorder>1</sortorder>
                     <drawtype>0</drawtype>
                     <color>CCCC00</color>
@@ -3151,18 +4201,6 @@ SELECT username&#13;
                 <graph_item>
                     <sortorder>0</sortorder>
                     <drawtype>0</drawtype>
-                    <color>3333FF</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
-                    <item>
-                        <host>template_oracle_odbc</host>
-                        <key>db.odbc.select[ora_session_inactive, {$DSN}]</key>
-                    </item>
-                </graph_item>
-                <graph_item>
-                    <sortorder>1</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FF33FF</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
@@ -3170,6 +4208,18 @@ SELECT username&#13;
                     <item>
                         <host>template_oracle_odbc</host>
                         <key>db.odbc.select[ora_session_system, {$DSN}]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <drawtype>0</drawtype>
+                    <color>3333FF</color>
+                    <yaxisside>0</yaxisside>
+                    <calc_fnc>2</calc_fnc>
+                    <type>0</type>
+                    <item>
+                        <host>template_oracle_odbc</host>
+                        <key>db.odbc.select[ora_session_inactive, {$DSN}]</key>
                     </item>
                 </graph_item>
                 <graph_item>
@@ -3207,6 +4257,18 @@ SELECT username&#13;
                 <graph_item>
                     <sortorder>0</sortorder>
                     <drawtype>0</drawtype>
+                    <color>3333FF</color>
+                    <yaxisside>0</yaxisside>
+                    <calc_fnc>2</calc_fnc>
+                    <type>0</type>
+                    <item>
+                        <host>template_oracle_odbc</host>
+                        <key>db.odbc.select[ora_sga_shared_pool, {$DSN}]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <drawtype>0</drawtype>
                     <color>00BB00</color>
                     <yaxisside>0</yaxisside>
                     <calc_fnc>2</calc_fnc>
@@ -3217,7 +4279,7 @@ SELECT username&#13;
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>1</sortorder>
+                    <sortorder>2</sortorder>
                     <drawtype>0</drawtype>
                     <color>EE0000</color>
                     <yaxisside>0</yaxisside>
@@ -3229,7 +4291,7 @@ SELECT username&#13;
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>2</sortorder>
+                    <sortorder>3</sortorder>
                     <drawtype>0</drawtype>
                     <color>00DDDD</color>
                     <yaxisside>0</yaxisside>
@@ -3241,7 +4303,7 @@ SELECT username&#13;
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>3</sortorder>
+                    <sortorder>4</sortorder>
                     <drawtype>0</drawtype>
                     <color>FF66FF</color>
                     <yaxisside>0</yaxisside>
@@ -3253,7 +4315,7 @@ SELECT username&#13;
                     </item>
                 </graph_item>
                 <graph_item>
-                    <sortorder>4</sortorder>
+                    <sortorder>5</sortorder>
                     <drawtype>0</drawtype>
                     <color>C8C800</color>
                     <yaxisside>0</yaxisside>
@@ -3262,18 +4324,6 @@ SELECT username&#13;
                     <item>
                         <host>template_oracle_odbc</host>
                         <key>db.odbc.select[ora_sga_log_buffer, {$DSN}]</key>
-                    </item>
-                </graph_item>
-                <graph_item>
-                    <sortorder>5</sortorder>
-                    <drawtype>0</drawtype>
-                    <color>3333FF</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
-                    <item>
-                        <host>template_oracle_odbc</host>
-                        <key>db.odbc.select[ora_sga_shared_pool, {$DSN}]</key>
                     </item>
                 </graph_item>
             </graph_items>
